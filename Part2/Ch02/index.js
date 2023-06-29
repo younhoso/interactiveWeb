@@ -1,5 +1,6 @@
 import CanvasOption from "./js/CanvasOption.js";
 import Particle from "./js/Particle.js";
+import {randomNumBetween} from "./js/utils.js";
 
 class Canvas extends CanvasOption {
   constructor() {
@@ -21,11 +22,13 @@ class Canvas extends CanvasOption {
   }
 
   createParticles() {
-    const PARTICLE_NUM = 1;
-    for(let i = 0;i < PARTICLE_NUM; i++){
-      const x = 300
-      const y = 300
-      this.particles.push(new Particle(x, y))
+    const PARTICLE_NUM = 2000;
+    const x = randomNumBetween(0, this.canvasWidth);
+    const y = randomNumBetween(0, this.canvasHeight);
+    for(let i = 0; i < PARTICLE_NUM; i++){
+      const vx = randomNumBetween(-5, 5);
+      const vy = randomNumBetween(-5, 5);
+      this.particles.push(new Particle(x, y, vx, vy))
     }
   }
 
@@ -37,11 +40,15 @@ class Canvas extends CanvasOption {
       requestAnimationFrame(frame)
       now = Date.now();
       delta = now - then;
-      if(delta < this.interval) return
+      if(delta < this.interval) return;
+      this.ctx.fillStyle = this.bgColor;
+      this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight)  
     
-      this.particles.forEach(particle => {
+      this.particles.forEach((particle, idx) => {
         particle.update();
         particle.draw();
+
+        if(particle.opacity < 0) this.particles.splice(idx, 1)
       })
       
       then = now - (delta % this.interval)
